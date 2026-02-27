@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Okta IdP Metadata for the Aeromech / University of Sydney Shibboleth SP.
+
+    Source:  Okta Administration console → Applications → <app> → Sign On →
+             "Identity Provider metadata" link.
+    IdP Entity ID : http://www.okta.com/exk13lya02eet9NpM3l7
+    SSO URL       : https://sso.sydney.edu.au/app/sydneyuni_webaeromech_1/exk13lya02eet9NpM3l7/sso/saml
+    SLO URL       : https://sso.sydney.edu.au/app/sydneyuni_webaeromech_1/exk13lya02eet9NpM3l7/slo/saml
+
+    IMPORTANT: Replace the X509Certificate value below with the actual
+    signing certificate exported from your Okta application before deploying.
+    The placeholder value is intentionally invalid and will prevent shibd
+    from starting if left unchanged.
+-->
+<md:EntityDescriptor
+    xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+    xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+    entityID="http://www.okta.com/exk13lya02eet9NpM3l7">
+
+  <md:IDPSSODescriptor
+      WantAuthnRequestsSigned="false"
+      protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+
+    <!-- IdP signing certificate – replace with actual value from Okta -->
+    <md:KeyDescriptor use="signing">
+      <ds:KeyInfo>
+        <ds:X509Data>
+          <ds:X509Certificate>
+            REPLACE_WITH_ACTUAL_OKTA_SIGNING_CERTIFICATE_BASE64
+          </ds:X509Certificate>
+        </ds:X509Data>
+      </ds:KeyInfo>
+    </md:KeyDescriptor>
+
+    <!-- Single Logout Service (if Okta app exposes one) -->
+    <md:SingleLogoutService
+        Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+        Location="https://sso.sydney.edu.au/app/sydneyuni_webaeromech_1/exk13lya02eet9NpM3l7/slo/saml"/>
+
+    <!-- Supported NameID formats -->
+    <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
+    <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
+    <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
+
+    <!-- Single Sign-On Service – HTTP-POST binding -->
+    <md:SingleSignOnService
+        Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+        Location="https://sso.sydney.edu.au/app/sydneyuni_webaeromech_1/exk13lya02eet9NpM3l7/sso/saml"/>
+
+    <!-- Single Sign-On Service – HTTP-Redirect binding -->
+    <md:SingleSignOnService
+        Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+        Location="https://sso.sydney.edu.au/app/sydneyuni_webaeromech_1/exk13lya02eet9NpM3l7/sso/saml"/>
+
+  </md:IDPSSODescriptor>
+
+</md:EntityDescriptor>
