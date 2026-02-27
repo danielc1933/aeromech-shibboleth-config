@@ -1,0 +1,77 @@
+<SPConfig xmlns="urn:mace:shibboleth:3.0:native:sp:config"
+    xmlns:conf="urn:mace:shibboleth:3.0:native:sp:config"
+    clockSkew="180">
+
+    <!--
+        Shibboleth SP configuration for web.aeromech.usyd.edu.au
+        Identity Provider: Okta (http://www.okta.com/exk13lya02eet9NpM3l7)
+        Protected resource: https://web.aeromech.usyd.edu.au/private
+    -->
+
+    <OutOfProcess tranLogFormat="%u|%s|%IDP|%i|%ac|%t|%attr|%n|%b|%E|%S|%SS|%L|%UA|%a" />
+
+    <UnixListener address="shibd.sock"/>
+
+    <StorageService type="Memory" id="mem" cleanupInterval="900"/>
+    <SessionCache type="StorageService" StorageService="mem" cacheAssertions="false"
+                  cacheAllowance="900" inprocTimeout="900" cleanupInterval="900"/>
+    <ReplayCache StorageService="mem"/>
+    <ArtifactMap artifactTTL="180"/>
+
+    <RequestMapper type="Native">
+        <RequestMap>
+            <Host name="web.aeromech.usyd.edu.au" scheme="https" port="443">
+                <Path name="private" authType="shibboleth" requireSession="true"/>
+            </Host>
+        </RequestMap>
+    </RequestMapper>
+
+    <ApplicationDefaults entityID="https://web.aeromech.usyd.edu.au/shibboleth"
+                         REMOTE_USER="eppn persistent-id targeted-id"
+                         cipherSuites="DEFAULT:!EXP:!LOW:!aNULL:!eNULL:!DES:!IDEA:!SEED:!RC4:!3DES:!kRSA:!SSLv2:!SSLv3:!TLSv1:!TLSv1.1">
+
+        <Sessions lifetime="28800" timeout="3600" relayState="ss:mem"
+                  checkAddress="false" handlerSSL="true" cookieProps="https">
+
+            <!-- SAML 2.0 POST binding Assertion Consumer Service -->
+            <SSO entityID="http://www.okta.com/exk13lya02eet9NpM3l7"
+                 discoveryProtocol="SAMLDS"
+                 ECP="false">
+              SAML2 SAML1
+            </SSO>
+
+            <Logout>SAML2 Local</Logout>
+            <LogoutInitiator type="Admin" Location="/Logout/Admin" acl="127.0.0.1 ::1"/>
+
+            <Handler type="MetadataGenerator" Location="/Metadata" signing="false"/>
+            <Handler type="Status" Location="/Status" acl="127.0.0.1 ::1"/>
+            <Handler type="Session" Location="/Session" showAttributeValues="false"/>
+            <Handler type="DiscoveryFeed" Location="/DiscoFeed"/>
+        </Sessions>
+
+        <Errors supportContact="root@localhost"
+                helpLocation="/about.html"
+                styleSheet="/shibboleth-sp/main.css"/>
+
+        <!-- Okta IdP metadata loaded from local file -->
+        <MetadataProvider type="XML" validate="true"
+                          path="/etc/shibboleth/okta-idp-metadata.xml"/>
+
+        <!-- Attribute policy: map attributes from Okta assertions -->
+        <AttributeExtractor type="XML" validate="true" reloadChanges="false"
+                            path="attribute-map.xml"/>
+
+        <AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
+
+        <CredentialResolver type="File" use="signing"
+                            key="sp-signing-key.pem" certificate="sp-signing-cert.pem"/>
+        <CredentialResolver type="File" use="encryption"
+                            key="sp-encrypt-key.pem" certificate="sp-encrypt-cert.pem"/>
+
+    </ApplicationDefaults>
+
+    <SecurityPolicyProvider type="XML" validate="true" path="security-policy.xml"/>
+
+    <ProtocolProvider type="XML" validate="true" reloadChanges="false" path="protocols.xml"/>
+
+</SPConfig>
